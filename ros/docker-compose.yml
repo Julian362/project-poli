@@ -24,6 +24,52 @@ services:
     stdin_open: true
     tty: true
 
+  chatbot-spring:
+    build:
+      context: ../backend/chatbot-spring
+    image: project-poli/chatbot-spring:latest
+    depends_on:
+      - micro-ros-agent
+    networks:
+      - default
+    environment:
+      - MONGO_URI=${MONGO_URI}
+      - MONGO_DB=${MONGO_DB}
+      - DEEPSEEK_API_KEY=${DEEPSEEK_API_KEY}
+    ports:
+      - "8081:8081"
+    restart: unless-stopped
+
+  analytics-spring:
+    build:
+      context: ../backend/analytics-spring
+    image: project-poli/analytics-spring:latest
+    networks:
+      - default
+    environment:
+      - MONGO_URI=${MONGO_URI}
+      - MONGO_DB=${MONGO_DB}
+    depends_on:
+      - chatbot-spring
+    ports:
+      - "8082:8082"
+    restart: unless-stopped
+
+  analytics-api:
+    build:
+      context: ./analytics-api
+    image: project-poli/analytics-api:latest
+    depends_on:
+      - micro-ros-agent
+    networks:
+      - default
+    environment:
+      - MONGO_URI=${MONGO_URI}
+      - MONGO_DB=${MONGO_DB}
+    ports:
+      - "8001:8001"
+    restart: unless-stopped
+
 networks:
   default:
     name: ros_default
