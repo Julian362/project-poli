@@ -1,4 +1,9 @@
 import os
+try:
+    from dotenv import load_dotenv
+    load_dotenv()
+except Exception:
+    pass
 from fastapi import FastAPI
 from pymongo import MongoClient
 from pydantic import BaseModel
@@ -70,42 +75,42 @@ def send_cmd(cmd: Command):
     except Exception as e:
         return {"ok": False, "error": str(e)}
 
-@app.post("/hab/on")
+@app.api_route("/hab/on", methods=["GET", "POST"])
 def hab_on():
     ros_publisher.publish_char('H')
     if mongo_db:
         mongo_db.get_collection("led_commands").insert_one({"command":"H","source":"ros-cli-api","ts": __import__("datetime").datetime.utcnow()})
     return {"ok": True}
 
-@app.post("/hab/off")
+@app.api_route("/hab/off", methods=["GET", "POST"])
 def hab_off():
     ros_publisher.publish_char('h')
     if mongo_db:
         mongo_db.get_collection("led_commands").insert_one({"command":"h","source":"ros-cli-api","ts": __import__("datetime").datetime.utcnow()})
     return {"ok": True}
 
-@app.post("/coc/on")
+@app.api_route("/coc/on", methods=["GET", "POST"])
 def coc_on():
     ros_publisher.publish_char('C')
     if mongo_db:
         mongo_db.get_collection("led_commands").insert_one({"command":"C","source":"ros-cli-api","ts": __import__("datetime").datetime.utcnow()})
     return {"ok": True}
 
-@app.post("/coc/off")
+@app.api_route("/coc/off", methods=["GET", "POST"])
 def coc_off():
     ros_publisher.publish_char('c')
     if mongo_db:
         mongo_db.get_collection("led_commands").insert_one({"command":"c","source":"ros-cli-api","ts": __import__("datetime").datetime.utcnow()})
     return {"ok": True}
 
-@app.post("/sal/on")
+@app.api_route("/sal/on", methods=["GET", "POST"])
 def sal_on():
     ros_publisher.publish_char('S')
     if mongo_db:
         mongo_db.get_collection("led_commands").insert_one({"command":"S","source":"ros-cli-api","ts": __import__("datetime").datetime.utcnow()})
     return {"ok": True}
 
-@app.post("/sal/off")
+@app.api_route("/sal/off", methods=["GET", "POST"])
 def sal_off():
     ros_publisher.publish_char('s')
     if mongo_db:

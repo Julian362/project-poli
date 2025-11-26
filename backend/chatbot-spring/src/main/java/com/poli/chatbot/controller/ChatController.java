@@ -2,6 +2,7 @@ package com.poli.chatbot.controller;
 
 import com.poli.chatbot.model.ChatMessage;
 import com.poli.chatbot.model.ChatSession;
+import com.poli.chatbot.model.AskRequest;
 import com.poli.chatbot.service.ChatService;
 import jakarta.validation.constraints.NotBlank;
 import org.springframework.http.ResponseEntity;
@@ -20,9 +21,15 @@ public class ChatController {
     }
 
     @PostMapping("/ask")
-    public ResponseEntity<ChatMessage> ask(@RequestParam @NotBlank String sessionId,
-                                           @RequestParam @NotBlank String question) {
-        ChatMessage reply = chatService.handleUserMessage(sessionId, question);
+    public ResponseEntity<ChatMessage> ask(@RequestBody AskRequest req) {
+        ChatMessage reply = chatService.handleUserMessage(req.getSessionId(), req.getMessage());
+        return ResponseEntity.ok(reply);
+    }
+
+    // Fallback para pruebas rápidas sin JSON (query params)
+    @GetMapping("/ask")
+    public ResponseEntity<ChatMessage> askGet(@RequestParam String sessionId, @RequestParam String message) {
+        ChatMessage reply = chatService.handleUserMessage(sessionId, message);
         return ResponseEntity.ok(reply);
     }
 

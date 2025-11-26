@@ -1,0 +1,202 @@
+{
+  "info": {
+    "name": "Project Poli - ROS, Chatbot, Analytics",
+    "_postman_id": "a1b2c3d4-e5f6-7890-abcd-ef0123456789",
+    "description": "Colección para probar ros-cli-api, chatbot-spring y analytics-spring",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "ROS API",
+      "item": [
+        {
+          "name": "Health",
+          "request": {
+            "method": "GET",
+            "url": "{{ROS_API_BASE}}/health"
+          }
+        },
+        {
+          "name": "Habitación ON",
+          "request": {
+            "method": "GET",
+            "url": "{{ROS_API_BASE}}/hab/on"
+          }
+        },
+        {
+          "name": "Habitación OFF",
+          "request": {
+            "method": "GET",
+            "url": "{{ROS_API_BASE}}/hab/off"
+          }
+        },
+        {
+          "name": "Cocina ON",
+          "request": {
+            "method": "GET",
+            "url": "{{ROS_API_BASE}}/coc/on"
+          }
+        },
+        {
+          "name": "Cocina OFF",
+          "request": {
+            "method": "GET",
+            "url": "{{ROS_API_BASE}}/coc/off"
+          }
+        },
+        {
+          "name": "Sala ON",
+          "request": {
+            "method": "GET",
+            "url": "{{ROS_API_BASE}}/sal/on"
+          }
+        },
+        {
+          "name": "Sala OFF",
+          "request": {
+            "method": "GET",
+            "url": "{{ROS_API_BASE}}/sal/off"
+          }
+        },
+        {
+          "name": "Status (X)",
+          "request": {
+            "method": "GET",
+            "url": "{{ROS_API_BASE}}/status"
+          }
+        },
+        {
+          "name": "Publicar comando arbitrario",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{ROS_API_BASE}}/cmd",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"data\": \"H\"}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Chatbot Spring",
+      "item": [
+        {
+          "name": "Health",
+          "request": {
+            "method": "GET",
+            "url": "{{CHATBOT_BASE}}/actuator/health"
+          }
+        },
+        {
+          "name": "Ask (session demo)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{CHATBOT_BASE}}/api/chat/ask",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"sessionId\":\"demo\",\"message\":\"Hola, ¿qué puedes hacer?\"}"
+            }
+          }
+        },
+        {
+          "name": "Ask (enciende habitación)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{CHATBOT_BASE}}/api/chat/ask",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"sessionId\":\"demo\",\"message\":\"Enciende la luz de la habitación\"}"
+            }
+          }
+        },
+        {
+          "name": "History (demo)",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{CHATBOT_BASE}}/api/chat/history?sessionId=demo",
+              "host": ["{{CHATBOT_BASE}}"],
+              "path": ["api", "chat", "history"],
+              "query": [{ "key": "sessionId", "value": "demo" }]
+            }
+          }
+        },
+        {
+          "name": "Create session demo2",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{CHATBOT_BASE}}/api/chat/session",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"sessionId\":\"demo2\"}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Analytics Spring",
+      "item": [
+        {
+          "name": "Health",
+          "request": {
+            "method": "GET",
+            "url": "{{ANALYTICS_BASE}}/actuator/health"
+          }
+        },
+        {
+          "name": "Lights state",
+          "request": {
+            "method": "GET",
+            "url": "{{ANALYTICS_BASE}}/api/analytics/lights/state"
+          }
+        },
+        {
+          "name": "Command counts (last 100)",
+          "request": {
+            "method": "GET",
+            "url": "{{ANALYTICS_BASE}}/api/analytics/commands/counts"
+          }
+        },
+        {
+          "name": "Top since (variable)",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{ANALYTICS_BASE}}/api/analytics/commands/top?since={{SINCE_ISO}}",
+              "host": ["{{ANALYTICS_BASE}}"],
+              "path": ["api", "analytics", "commands", "top"],
+              "query": [{ "key": "since", "value": "{{SINCE_ISO}}" }]
+            }
+          }
+        },
+        {
+          "name": "Record command (H seed)",
+          "request": {
+            "method": "POST",
+            "url": {
+              "raw": "{{ANALYTICS_BASE}}/api/analytics/commands/record?command=H&source=postman",
+              "host": ["{{ANALYTICS_BASE}}"],
+              "path": ["api", "analytics", "commands", "record"],
+              "query": [
+                { "key": "command", "value": "H" },
+                { "key": "source", "value": "postman" }
+              ]
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "variable": [
+    { "key": "ROS_API_BASE", "value": "http://localhost:8000" },
+    { "key": "CHATBOT_BASE", "value": "http://localhost:8081" },
+    { "key": "ANALYTICS_BASE", "value": "http://localhost:8082" },
+    { "key": "SINCE_ISO", "value": "2025-11-26T00:00:00Z" }
+  ]
+}

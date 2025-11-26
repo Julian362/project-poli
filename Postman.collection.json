@@ -1,0 +1,253 @@
+{
+  "info": {
+    "_postman_id": "b9c6e8f9-1a1e-4afb-9a5c-2a6b2e0b8c01",
+    "name": "Project POLI - Chatbot + ROS",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": "Colección para probar el chatbot-spring y el ros-cli-api. Incluye flujos de acción (prende/apaga) y preguntas generales."
+  },
+  "item": [
+    {
+      "name": "ROS API",
+      "item": [
+        { "name": "Health", "request": { "method": "GET", "url": "{{ros_base}}/health" } },
+        { "name": "Habitación ON", "request": { "method": "GET", "url": "{{ros_base}}/hab/on" } },
+        { "name": "Habitación OFF", "request": { "method": "GET", "url": "{{ros_base}}/hab/off" } },
+        { "name": "Cocina ON", "request": { "method": "GET", "url": "{{ros_base}}/coc/on" } },
+        { "name": "Cocina OFF", "request": { "method": "GET", "url": "{{ros_base}}/coc/off" } },
+        { "name": "Sala ON", "request": { "method": "GET", "url": "{{ros_base}}/sal/on" } },
+        { "name": "Sala OFF", "request": { "method": "GET", "url": "{{ros_base}}/sal/off" } },
+        { "name": "Publicar comando (POST /cmd)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{ros_base}}/cmd",
+            "body": { "mode": "raw", "raw": "{\"data\": \"H\"}" }
+          }
+        }
+      ]
+    },
+        {
+          "name": "GET Ask (Q&A: quien es james bond)",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{chatbot_base}}/api/chat/ask?sessionId={{session_id}}&message=quien%20es%20james%20bond",
+              "host": ["{{chatbot_base}}"],
+              "path": ["api", "chat", "ask"],
+              "query": [
+                { "key": "sessionId", "value": "{{session_id}}" },
+                { "key": "message", "value": "quien es james bond" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "GET Ask (acción: apaga todo)",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{chatbot_base}}/api/chat/ask?sessionId={{session_id}}&message=apaga%20todo",
+              "host": ["{{chatbot_base}}"],
+              "path": ["api", "chat", "ask"],
+              "query": [
+                { "key": "sessionId", "value": "{{session_id}}" },
+                { "key": "message", "value": "apaga todo" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "POST Ask (acción: apaga sala y cocina)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{chatbot_base}}/api/chat/ask",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"sessionId\": \"{{session_id}}\",\n  \"message\": \"apaga sala y cocina\"\n}"
+            }
+          }
+        },
+        {
+          "name": "POST Ask (Q&A: quien es james bond)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{chatbot_base}}/api/chat/ask",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"sessionId\": \"{{session_id}}\",\n  \"message\": \"quien es james bond\"\n}"
+            }
+          }
+        },
+        {
+          "name": "GET History (session)",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{chatbot_base}}/api/chat/history?sessionId={{session_id}}",
+              "host": ["{{chatbot_base}}"],
+              "path": ["api", "chat", "history"],
+              "query": [{ "key": "sessionId", "value": "{{session_id}}" }]
+            }
+          }
+        },
+        {
+          "name": "POST Create session",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{chatbot_base}}/api/chat/session",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"sessionId\": \"{{session_id}}\"\n}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Analytics Spring",
+      "item": [
+        {
+          "name": "Health",
+          "request": {
+            "method": "GET",
+            "url": "{{analytics_base}}/actuator/health"
+          }
+        },
+        {
+          "name": "Lights state",
+          "request": {
+            "method": "GET",
+            "url": "{{analytics_base}}/api/analytics/lights/state"
+          }
+        },
+        {
+          "name": "Command counts (last 100)",
+          "request": {
+            "method": "GET",
+            "url": "{{analytics_base}}/api/analytics/commands/counts"
+          }
+        },
+        {
+          "name": "Top since (variable)",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{analytics_base}}/api/analytics/commands/top?since={{since_iso}}",
+              "host": ["{{analytics_base}}"],
+              "path": ["api", "analytics", "commands", "top"],
+              "query": [{ "key": "since", "value": "{{since_iso}}" }]
+            }
+          }
+        },
+        {
+          "name": "Record command (H seed)",
+          "request": {
+            "method": "POST",
+            "url": {
+              "raw": "{{analytics_base}}/api/analytics/commands/record?command=H&source=postman",
+              "host": ["{{analytics_base}}"],
+              "path": ["api", "analytics", "commands", "record"],
+              "query": [
+                { "key": "command", "value": "H" },
+                { "key": "source", "value": "postman" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Record command (h seed)",
+          "request": {
+            "method": "POST",
+            "url": {
+              "raw": "{{analytics_base}}/api/analytics/commands/record?command=h&source=postman",
+              "host": ["{{analytics_base}}"],
+              "path": ["api", "analytics", "commands", "record"],
+              "query": [
+                { "key": "command", "value": "h" },
+                { "key": "source", "value": "postman" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Record command (C seed)",
+          "request": {
+            "method": "POST",
+            "url": {
+              "raw": "{{analytics_base}}/api/analytics/commands/record?command=C&source=postman",
+              "host": ["{{analytics_base}}"],
+              "path": ["api", "analytics", "commands", "record"],
+              "query": [
+                { "key": "command", "value": "C" },
+                { "key": "source", "value": "postman" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Record command (c seed)",
+          "request": {
+            "method": "POST",
+            "url": {
+              "raw": "{{analytics_base}}/api/analytics/commands/record?command=c&source=postman",
+              "host": ["{{analytics_base}}"],
+              "path": ["api", "analytics", "commands", "record"],
+              "query": [
+                { "key": "command", "value": "c" },
+                { "key": "source", "value": "postman" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Record command (S seed)",
+          "request": {
+            "method": "POST",
+            "url": {
+              "raw": "{{analytics_base}}/api/analytics/commands/record?command=S&source=postman",
+              "host": ["{{analytics_base}}"],
+              "path": ["api", "analytics", "commands", "record"],
+              "query": [
+                { "key": "command", "value": "S" },
+                { "key": "source", "value": "postman" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Record command (s seed)",
+          "request": {
+            "method": "POST",
+            "url": {
+              "raw": "{{analytics_base}}/api/analytics/commands/record?command=s&source=postman",
+              "host": ["{{analytics_base}}"],
+              "path": ["api", "analytics", "commands", "record"],
+              "query": [
+                { "key": "command", "value": "s" },
+                { "key": "source", "value": "postman" }
+              ]
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "variable": [
+    { "key": "ros_base", "value": "http://localhost:8000", "type": "string" },
+    {
+      "key": "chatbot_base",
+      "value": "http://localhost:8081",
+      "type": "string"
+    },
+    {
+      "key": "analytics_base",
+      "value": "http://localhost:8082",
+      "type": "string"
+    },
+    { "key": "session_id", "value": "test1", "type": "string" },
+    { "key": "since_iso", "value": "2025-11-26T00:00:00Z", "type": "string" }
+  ]
+}
