@@ -9,14 +9,36 @@
     {
       "name": "ROS API",
       "item": [
-        { "name": "Health", "request": { "method": "GET", "url": "{{ros_base}}/health" } },
-        { "name": "Habitación ON", "request": { "method": "GET", "url": "{{ros_base}}/hab/on" } },
-        { "name": "Habitación OFF", "request": { "method": "GET", "url": "{{ros_base}}/hab/off" } },
-        { "name": "Cocina ON", "request": { "method": "GET", "url": "{{ros_base}}/coc/on" } },
-        { "name": "Cocina OFF", "request": { "method": "GET", "url": "{{ros_base}}/coc/off" } },
-        { "name": "Sala ON", "request": { "method": "GET", "url": "{{ros_base}}/sal/on" } },
-        { "name": "Sala OFF", "request": { "method": "GET", "url": "{{ros_base}}/sal/off" } },
-        { "name": "Publicar comando (POST /cmd)",
+        {
+          "name": "Health",
+          "request": { "method": "GET", "url": "{{ros_base}}/health" }
+        },
+        {
+          "name": "Habitación ON",
+          "request": { "method": "GET", "url": "{{ros_base}}/hab/on" }
+        },
+        {
+          "name": "Habitación OFF",
+          "request": { "method": "GET", "url": "{{ros_base}}/hab/off" }
+        },
+        {
+          "name": "Cocina ON",
+          "request": { "method": "GET", "url": "{{ros_base}}/coc/on" }
+        },
+        {
+          "name": "Cocina OFF",
+          "request": { "method": "GET", "url": "{{ros_base}}/coc/off" }
+        },
+        {
+          "name": "Sala ON",
+          "request": { "method": "GET", "url": "{{ros_base}}/sal/on" }
+        },
+        {
+          "name": "Sala OFF",
+          "request": { "method": "GET", "url": "{{ros_base}}/sal/off" }
+        },
+        {
+          "name": "Publicar comando (POST /cmd)",
           "request": {
             "method": "POST",
             "header": [{ "key": "Content-Type", "value": "application/json" }],
@@ -26,6 +48,31 @@
         }
       ]
     },
+    {
+      "name": "Chatbot Spring",
+      "item": [
+        {
+          "name": "Health",
+          "request": {
+            "method": "GET",
+            "url": "{{chatbot_base}}/actuator/health"
+          }
+        },
+        {
+          "name": "GET Ask (acción: prende todo)",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{chatbot_base}}/api/chat/ask?sessionId={{session_id}}&message=prende%20todo",
+              "host": ["{{chatbot_base}}"],
+              "path": ["api", "chat", "ask"],
+              "query": [
+                { "key": "sessionId", "value": "{{session_id}}" },
+                { "key": "message", "value": "prende todo" }
+              ]
+            }
+          }
+        },
         {
           "name": "GET Ask (Q&A: quien es james bond)",
           "request": {
