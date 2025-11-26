@@ -9,3 +9,21 @@ services:
     stdin_open: true
     tty: true
     restart: "no"
+  ros-cli-api:
+    build:
+      context: ./ros-api
+    image: project-poli/ros-cli-api:latest
+    depends_on:
+      - micro-ros-agent
+    networks:
+      - default
+    ports:
+      - "8000:8000"
+    environment:
+      - ROS_DOMAIN_ID=0
+    stdin_open: true
+    tty: true
+
+networks:
+  default:
+    name: ros_default
