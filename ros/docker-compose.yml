@@ -40,6 +40,21 @@ services:
       - "8081:8081"
     restart: unless-stopped
 
+  graphql-gateway:
+    image: project-poli/graphql-gateway:latest
+    build:
+      context: ../backend/graphql-gateway
+    container_name: ros-graphql-gateway-1
+    networks:
+      - default
+    environment:
+      - CHATBOT_BASE=http://chatbot-spring:8081
+      - PORT=8090
+    ports:
+      - "8090:8090"
+    depends_on:
+      - chatbot-spring
+
   analytics-spring:
     build:
       context: ../backend/analytics-spring
