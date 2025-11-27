@@ -66,28 +66,31 @@ public class ChatService {
                     answer = root.path("reply").asText();
                 }
                 if (root.has("actions") && root.path("actions").isArray()) {
-                    StringBuilder executed = new StringBuilder();
+                    boolean habOn=false,cocOn=false,salOn=false,habOff=false,cocOff=false,salOff=false;
                     for (JsonNode a : root.path("actions")) {
                         String room = a.path("room").asText("");
                         String state = a.path("state").asText("");
                         if (room.isBlank() || state.isBlank()) continue;
                         if (room.equals("all")) {
-                            boolean r1 = rosClient.toggle("hab", state);
-                            boolean r2 = rosClient.toggle("coc", state);
-                            boolean r3 = rosClient.toggle("sal", state);
+                            boolean rHab = rosClient.toggle("hab", state);
+                            boolean rCoc = rosClient.toggle("coc", state);
+                            boolean rSal = rosClient.toggle("sal", state);
                             analyticsClient.recordState("hab", state);
                             analyticsClient.recordState("coc", state);
                             analyticsClient.recordState("sal", state);
-                            executed.append(String.format("[hogar] %s todo: %s/%s/%s\n", state, r1?"OK":"FAIL", r2?"OK":"FAIL", r3?"OK":"FAIL"));
+                            if (state.equals("on")) { habOn=true;cocOn=true;salOn=true; } else { habOff=true;cocOff=true;salOff=true; }
                         } else {
                             boolean ok = rosClient.toggle(room, state);
                             analyticsClient.recordState(room, state);
-                            executed.append(String.format("[hogar] %s %s: %s\n", state, room, ok?"OK":"FAIL"));
+                            if (room.equals("hab")) { if (state.equals("on")) habOn=true; else habOff=true; }
+                            if (room.equals("coc")) { if (state.equals("on")) cocOn=true; else cocOff=true; }
+                            if (room.equals("sal")) { if (state.equals("on")) salOn=true; else salOff=true; }
                         }
                     }
                     executedByAI = true;
-                    if (executed.length() > 0) {
-                        answer = executed.toString().trim() + "\n\n" + answer;
+                    String concise = buildSummaryLine(habOn,cocOn,salOn,habOff,cocOff,salOff);
+                    if (!concise.isBlank()) {
+                        answer = concise + (answer.isBlank() ? "" : " " + answer);
                     }
                 }
             } catch (Exception ignored) {
@@ -106,29 +109,27 @@ public class ChatService {
             String t = t1;
             boolean on = (t1.contains("prende") || t1.contains("enciende") || t1.contains("encender"));
             boolean off = (t1.contains("apaga") || t1.contains("apagar"));
+            boolean habOn=false,cocOn=false,salOn=false,habOff=false,cocOff=false,salOff=false;
             if (t1.contains("todo") || t1.contains("todas")) {
                 String state = on ? "on" : (off ? "off" : "");
                 if (!state.isEmpty()) {
-                    boolean r1 = rosClient.toggle("hab", state);
-                    boolean r2 = rosClient.toggle("coc", state);
-                    boolean r3 = rosClient.toggle("sal", state);
-                    analyticsClient.recordState("hab", state);
-                    analyticsClient.recordState("coc", state);
-                    analyticsClient.recordState("sal", state);
-                    fallbackNote = String.format("[hogar] %s todo: %s/%s/%s", state.equals("on")?"Encendiendo":"Apagando", r1?"OK":"FAIL", r2?"OK":"FAIL", r3?"OK":"FAIL");
+                    rosClient.toggle("hab", state); rosClient.toggle("coc", state); rosClient.toggle("sal", state);
+                    analyticsClient.recordState("hab", state); analyticsClient.recordState("coc", state); analyticsClient.recordState("sal", state);
+                    if (state.equals("on")) { habOn=true;cocOn=true;salOn=true; } else { habOff=true;cocOff=true;salOff=true; }
                 }
             } else {
                 String room = null;
-                if (t1.contains("hab")) room = "hab";
-                else if (t1.contains("coc")) room = "coc";
-                else if (t1.contains("sal")) room = "sal";
+                if (t1.contains("hab")) room = "hab"; else if (t1.contains("coc")) room = "coc"; else if (t1.contains("sal")) room = "sal";
                 String state = on ? "on" : (off ? "off" : "");
                 if (room != null && !state.isEmpty()) {
-                    boolean ok = rosClient.toggle(room, state);
+                    rosClient.toggle(room, state);
                     analyticsClient.recordState(room, state);
-                    fallbackNote = String.format("[hogar] %s %s: %s", state.equals("on")?"Encendiendo":"Apagando", room, ok?"OK":"FAIL");
+                    if (room.equals("hab")) { if (state.equals("on")) habOn=true; else habOff=true; }
+                    if (room.equals("coc")) { if (state.equals("on")) cocOn=true; else cocOff=true; }
+                    if (room.equals("sal")) { if (state.equals("on")) salOn=true; else salOff=true; }
                 }
             }
+            fallbackNote = buildSummaryLine(habOn,cocOn,salOn,habOff,cocOff,salOff);
             if (fallbackNote != null) {
                 if (answer.startsWith("[error]")) {
                     answer = fallbackNote;
@@ -149,5 +150,38 @@ public class ChatService {
     public List<ChatMessage> getHistory(String sessionId) {
         return messageRepository.findBySessionIdOrderByTsAsc(sessionId);
     }
+    // --- Helper UX formatting methods ---
+    private String buildSummaryLine(boolean habOn, boolean cocOn, boolean salOn, boolean habOff, boolean cocOff, boolean salOff) {
+        String onList = joinRooms(habOn, cocOn, salOn);
+        String offList = joinRooms(habOff, cocOff, salOff);
+        if (!onList.isEmpty() && offList.isEmpty()) {
+            return onList + (isPlural(onList)?" encendidas." : " encendida.");
+        }
+        if (!offList.isEmpty() && onList.isEmpty()) {
+            return offList + (isPlural(offList)?" apagadas." : " apagada.");
+        }
+        if (!onList.isEmpty() && !offList.isEmpty()) {
+            return onList + (isPlural(onList)?" encendidas; " : " encendida; ") + offList + (isPlural(offList)?" apagadas." : " apagada.");
+        }
+        return "";
+    }
 
+    private String joinRooms(boolean hab, boolean coc, boolean sal) {
+        StringBuilder sb = new StringBuilder();
+        if (hab) sb.append(sb.length()>0?", habitación":"habitación");
+        if (coc) sb.append(sb.length()>0?", cocina":"cocina");
+        if (sal) sb.append(sb.length()>0?", sala":"sala");
+        String out = sb.toString();
+        if (out.contains(",")) {
+            int lastComma = out.lastIndexOf(", ");
+            if (lastComma >= 0) {
+                out = out.substring(0, lastComma) + " y" + out.substring(lastComma + 1);
+            }
+        }
+        return out;
+    }
+
+    private boolean isPlural(String list) {
+        return list.contains(" y ");
+    }
 }

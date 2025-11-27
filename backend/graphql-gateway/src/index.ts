@@ -3,7 +3,8 @@ import { startStandaloneServer } from "@apollo/server/standalone";
 import fetch from "cross-fetch";
 
 const CHATBOT_BASE = process.env.CHATBOT_BASE || "http://chatbot-spring:8081";
-const ANALYTICS_BASE = process.env.ANALYTICS_BASE || "http://analytics-spring:8082";
+const ANALYTICS_BASE =
+  process.env.ANALYTICS_BASE || "http://analytics-spring:8082";
 const ROS_BASE = process.env.ROS_BASE || "http://ros-cli-api:8000";
 
 const typeDefs = `#graphql
@@ -56,7 +57,9 @@ const resolvers = {
   Query: {
     health: async () => "ok",
     history: async (_: any, { sessionId }: { sessionId: string }) => {
-      const url = `${CHATBOT_BASE}/api/chat/history?sessionId=${encodeURIComponent(sessionId)}`;
+      const url = `${CHATBOT_BASE}/api/chat/history?sessionId=${encodeURIComponent(
+        sessionId
+      )}`;
       const res = await fetch(url);
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const data = await res.json();
@@ -77,7 +80,9 @@ const resolvers = {
       return data;
     },
     topSince: async (_: any, { since }: { since: string }) => {
-      const url = `${ANALYTICS_BASE}/api/analytics/commands/top?since=${encodeURIComponent(since)}`;
+      const url = `${ANALYTICS_BASE}/api/analytics/commands/top?since=${encodeURIComponent(
+        since
+      )}`;
       const res = await fetch(url);
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const data = await res.json();
@@ -85,7 +90,10 @@ const resolvers = {
     },
   },
   Mutation: {
-    ask: async (_: any, { sessionId, message }: { sessionId: string; message: string }) => {
+    ask: async (
+      _: any,
+      { sessionId, message }: { sessionId: string; message: string }
+    ) => {
       const url = `${CHATBOT_BASE}/api/chat/ask`;
       const res = await fetch(url, {
         method: "POST",
@@ -106,15 +114,27 @@ const resolvers = {
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       return true;
     },
-    recordCommand: async (_: any, { command, source }: { command: string; source: string }) => {
-      const url = `${ANALYTICS_BASE}/api/analytics/commands/record?command=${encodeURIComponent(command)}&source=${encodeURIComponent(source)}`;
+    recordCommand: async (
+      _: any,
+      { command, source }: { command: string; source: string }
+    ) => {
+      const url = `${ANALYTICS_BASE}/api/analytics/commands/record?command=${encodeURIComponent(
+        command
+      )}&source=${encodeURIComponent(source)}`;
       const res = await fetch(url, { method: "POST" });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       return true;
     },
     setRoom: async (_: any, { room, on }: { room: string; on: boolean }) => {
       // Map room to path segment expected by ros-cli-api: hab|coc|sal
-      const map: Record<string, string> = { habitacion: "hab", hab: "hab", cocina: "coc", coc: "coc", sala: "sal", sal: "sal" };
+      const map: Record<string, string> = {
+        habitacion: "hab",
+        hab: "hab",
+        cocina: "coc",
+        coc: "coc",
+        sala: "sal",
+        sal: "sal",
+      };
       const seg = map[room.toLowerCase()];
       if (!seg) throw new Error("invalid room");
       const state = on ? "on" : "off";

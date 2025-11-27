@@ -1,0 +1,64 @@
+services:
+  micro-ros-agent:
+    image: microros/micro-ros-agent:humble
+    container_name: micro-ros-agent
+    command: ["udp4", "--port", "8888", "-v6"]
+    ports:
+      - "8888:8888/udp"
+    restart: unless-stopped
+
+  ros-cli-api:
+    build:
+      context: ./ros/ros-api
+    image: project-poli/ros-cli-api:latest
+    depends_on:
+      - micro-ros-agent
+    ports:
+      - "8000:8000"
+    environment:
+      - ROS_DOMAIN_ID=0
+
+  chatbot-spring:
+    build:
+      context: ./backend/chatbot-spring
+    image: project-poli/chatbot-spring:latest
+    depends_on:
+      - micro-ros-agent
+    ports:
+      - "8081:8081"
+    environment:
+      - MONGO_URI=${MONGO_URI}
+      - MONGO_DB=${MONGO_DB}
+      - OPENROUTER_API_KEY=${OPENROUTER_API_KEY}
+
+  analytics-spring:
+    build:
+      context: ./backend/analytics-spring
+    image: project-poli/analytics-spring:latest
+    depends_on:
+      - chatbot-spring
+    ports:
+      - "8082:8082"
+    environment:
+      - MONGO_URI=${MONGO_URI}
+      - MONGO_DB=${MONGO_DB}
+
+  graphql-gateway:
+    build:
+      context: ./backend/graphql-gateway
+    image: project-poli/graphql-gateway:latest
+    depends_on:
+      - chatbot-spring
+      - analytics-spring
+      - ros-cli-api
+    ports:
+      - "8090:8090"
+    environment:
+      - CHATBOT_BASE=http://chatbot-spring:8081
+      - ANALYTICS_BASE=http://analytics-spring:8082
+      - ROS_BASE=http://ros-cli-api:8000
+      - PORT=8090
+
+networks:
+  default:
+    driver: bridge

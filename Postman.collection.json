@@ -51,17 +51,138 @@
     {
       "name": "GraphQL Gateway",
       "item": [
-        { "name": "Health (simple)", "request": { "method": "POST", "header": [{"key":"Content-Type","value":"application/json"}], "url": "{{graphql_base}}/", "body": { "mode": "raw", "raw": "{\n  \"query\": \"query { health }\"\n}" } } },
-        { "name": "Ask (mutation)", "request": { "method": "POST", "header": [{"key":"Content-Type","value":"application/json"}], "url": "{{graphql_base}}/", "body": { "mode": "raw", "raw": "{\n  \"query\": \"mutation($sid: String!, $msg: String!) { ask(sessionId: $sid, message: $msg) { message { id sessionId role text ts } } }\",\n  \"variables\": { \"sid\": \"{{session_id}}\", \"msg\": \"prende todo\" }\n}" } } },
-        { "name": "History (query)", "request": { "method": "POST", "header": [{"key":"Content-Type","value":"application/json"}], "url": "{{graphql_base}}/", "body": { "mode": "raw", "raw": "{\n  \"query\": \"query($sid: String!) { history(sessionId: $sid) { id role text ts } }\",\n  \"variables\": { \"sid\": \"{{session_id}}\" }\n}" } } },
-        { "name": "CreateSession (mutation)", "request": { "method": "POST", "header": [{"key":"Content-Type","value":"application/json"}], "url": "{{graphql_base}}/", "body": { "mode": "raw", "raw": "{\n  \"query\": \"mutation($sid: String!) { createSession(sessionId: $sid) }\",\n  \"variables\": { \"sid\": \"{{session_id}}\" }\n}" } } },
-        { "name": "Analytics: lightsState (query)", "request": { "method": "POST", "header": [{"key":"Content-Type","value":"application/json"}], "url": "{{graphql_base}}/", "body": { "mode": "raw", "raw": "{\n  \"query\": \"query { lightsState { habitacion cocina sala } }\"\n}" } } },
-        { "name": "Analytics: commandCounts (query)", "request": { "method": "POST", "header": [{"key":"Content-Type","value":"application/json"}], "url": "{{graphql_base}}/", "body": { "mode": "raw", "raw": "{\n  \"query\": \"query { commandCounts { command count } }\"\n}" } } },
-        { "name": "Analytics: topSince (query)", "request": { "method": "POST", "header": [{"key":"Content-Type","value":"application/json"}], "url": "{{graphql_base}}/", "body": { "mode": "raw", "raw": "{\n  \"query\": \"query($since: String!) { topSince(since: $since) { command count } }\",\n  \"variables\": { \"since\": \"{{since_iso}}\" }\n}" } } }
-        ,{ "name": "Analytics: recordCommand (mutation)", "request": { "method": "POST", "header": [{"key":"Content-Type","value":"application/json"}], "url": "{{graphql_base}}/", "body": { "mode": "raw", "raw": "{\n  \"query\": \"mutation($cmd: String!, $src: String!) { recordCommand(command: $cmd, source: $src) }\",\n  \"variables\": { \"cmd\": \"H\", \"src\": \"postman\" }\n}" } } }
-        ,{ "name": "ROS: setRoom (hab ON)", "request": { "method": "POST", "header": [{"key":"Content-Type","value":"application/json"}], "url": "{{graphql_base}}/", "body": { "mode": "raw", "raw": "{\n  \"query\": \"mutation($room: String!, $on: Boolean!) { setRoom(room: $room, on: $on) }\",\n  \"variables\": { \"room\": \"hab\", \"on\": true }\n}" } } }
-        ,{ "name": "ROS: setRoom (coc OFF)", "request": { "method": "POST", "header": [{"key":"Content-Type","value":"application/json"}], "url": "{{graphql_base}}/", "body": { "mode": "raw", "raw": "{\n  \"query\": \"mutation($room: String!, $on: Boolean!) { setRoom(room: $room, on: $on) }\",\n  \"variables\": { \"room\": \"coc\", \"on\": false }\n}" } } }
-        ,{ "name": "ROS: publishCmd (S)", "request": { "method": "POST", "header": [{"key":"Content-Type","value":"application/json"}], "url": "{{graphql_base}}/", "body": { "mode": "raw", "raw": "{\n  \"query\": \"mutation($data: String!) { publishCmd(data: $data) }\",\n  \"variables\": { \"data\": \"S\" }\n}" } } }
+        {
+          "name": "Health (simple)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{graphql_base}}/",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"query\": \"query { health }\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Ask (mutation)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{graphql_base}}/",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"query\": \"mutation($sid: String!, $msg: String!) { ask(sessionId: $sid, message: $msg) { message { id sessionId role text ts } } }\",\n  \"variables\": { \"sid\": \"{{session_id}}\", \"msg\": \"prende todo\" }\n}"
+            }
+          }
+        },
+        {
+          "name": "History (query)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{graphql_base}}/",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"query\": \"query($sid: String!) { history(sessionId: $sid) { id role text ts } }\",\n  \"variables\": { \"sid\": \"{{session_id}}\" }\n}"
+            }
+          }
+        },
+        {
+          "name": "CreateSession (mutation)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{graphql_base}}/",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"query\": \"mutation($sid: String!) { createSession(sessionId: $sid) }\",\n  \"variables\": { \"sid\": \"{{session_id}}\" }\n}"
+            }
+          }
+        },
+        {
+          "name": "Analytics: lightsState (query)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{graphql_base}}/",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"query\": \"query { lightsState { habitacion cocina sala } }\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Analytics: commandCounts (query)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{graphql_base}}/",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"query\": \"query { commandCounts { command count } }\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Analytics: topSince (query)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{graphql_base}}/",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"query\": \"query($since: String!) { topSince(since: $since) { command count } }\",\n  \"variables\": { \"since\": \"{{since_iso}}\" }\n}"
+            }
+          }
+        },
+        {
+          "name": "Analytics: recordCommand (mutation)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{graphql_base}}/",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"query\": \"mutation($cmd: String!, $src: String!) { recordCommand(command: $cmd, source: $src) }\",\n  \"variables\": { \"cmd\": \"H\", \"src\": \"postman\" }\n}"
+            }
+          }
+        },
+        {
+          "name": "ROS: setRoom (hab ON)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{graphql_base}}/",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"query\": \"mutation($room: String!, $on: Boolean!) { setRoom(room: $room, on: $on) }\",\n  \"variables\": { \"room\": \"hab\", \"on\": true }\n}"
+            }
+          }
+        },
+        {
+          "name": "ROS: setRoom (coc OFF)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{graphql_base}}/",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"query\": \"mutation($room: String!, $on: Boolean!) { setRoom(room: $room, on: $on) }\",\n  \"variables\": { \"room\": \"coc\", \"on\": false }\n}"
+            }
+          }
+        },
+        {
+          "name": "ROS: publishCmd (S)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{graphql_base}}/",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"query\": \"mutation($data: String!) { publishCmd(data: $data) }\",\n  \"variables\": { \"data\": \"S\" }\n}"
+            }
+          }
+        }
       ]
     },
     {
@@ -310,7 +431,11 @@
       "value": "http://localhost:8082",
       "type": "string"
     },
-    { "key": "graphql_base", "value": "http://localhost:8090", "type": "string" },
+    {
+      "key": "graphql_base",
+      "value": "http://localhost:8090",
+      "type": "string"
+    },
     { "key": "session_id", "value": "test1", "type": "string" },
     { "key": "since_iso", "value": "2025-11-26T00:00:00Z", "type": "string" }
   ]

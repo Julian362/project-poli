@@ -1,10 +1,13 @@
-FROM eclipse-temurin:17-jdk
+FROM maven:3.9-eclipse-temurin-17 AS build
+WORKDIR /workspace
+COPY pom.xml .
+RUN mvn -q dependency:go-offline
+COPY src ./src
+RUN mvn -q -DskipTests package spring-boot:repackage
+
+FROM eclipse-temurin:17-jre
 WORKDIR /app
-RUN apt-get update && apt-get install -y maven && rm -rf /var/lib/apt/lists/*
-COPY pom.xml /app/pom.xml
-COPY src /app/src
-# Ensure Spring Boot creates an executable jar with the main manifest
-RUN mvn -q -f /app/pom.xml -DskipTests package spring-boot:repackage
+COPY --from=build /workspace/target/analytics-spring-0.1.0.jar app.jar
 EXPOSE 8082
 ENV JAVA_OPTS=""
-CMD ["bash", "-lc", "java $JAVA_OPTS -jar /app/target/analytics-spring-0.1.0.jar"]
+ENTRYPOINT ["java","-jar","app.jar"]

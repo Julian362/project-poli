@@ -1,0 +1,140 @@
+:root {
+  --bg: #0b1220;
+  --card: #121a2a;
+  --muted: #8fa0c2;
+  --chip: #1c2740;
+  --primary: #6ea8fe;
+  --danger: #ff8f8f;
+  --green: #22c55e;
+  --yellow: #facc15;
+  --blue: #60a5fa;
+  --off: #4b5563;
+}
+* {
+  box-sizing: border-box;
+}
+html,
+body,
+#app {
+  height: 100%;
+}
+body {
+  margin: 0;
+  background: var(--bg);
+  color: #e6eefc;
+  font-family: system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell,
+    Noto Sans, sans-serif;
+}
+.container {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 16px;
+}
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+.header h1 {
+  font-size: 20px;
+  margin: 0;
+}
+.indicators {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+.indicator {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--muted);
+}
+.dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+.card {
+  background: var(--card);
+  border-radius: 12px;
+  padding: 16px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+}
+.bothello {
+  color: var(--muted);
+  margin-bottom: 10px;
+}
+.chips {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 12px;
+}
+.chip {
+  background: var(--chip);
+  color: #dbe7ff;
+  border: 1px solid #233152;
+  border-radius: 999px;
+  padding: 8px 12px;
+  font-size: 13px;
+  cursor: pointer;
+}
+.chip.danger {
+  background: #3a2730;
+  border-color: #4a2c36;
+  color: #ffd1d1;
+}
+.messages {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-height: 260px;
+  max-height: 420px;
+  overflow: auto;
+  padding-right: 6px;
+}
+.msg {
+  display: flex;
+  gap: 10px;
+}
+.msg .bubble {
+  background: #0f1626;
+  border: 1px solid #1f2a44;
+  border-radius: 10px;
+  padding: 10px 12px;
+  max-width: 75%;
+}
+.msg.user {
+  justify-content: flex-end;
+}
+.msg.user .bubble {
+  background: #17223a;
+  border-color: #243356;
+}
+.footer {
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
+}
+.input {
+  flex: 1;
+  background: #0f1626;
+  border: 1px solid #1f2a44;
+  border-radius: 10px;
+  color: #e6eefc;
+  padding: 10px 12px;
+}
+.button {
+  background: var(--primary);
+  border: 0;
+  color: #0b1220;
+  border-radius: 10px;
+  padding: 10px 14px;
+  cursor: pointer;
+}
+.small {
+  font-size: 12px;
+  color: var(--muted);
+}
