@@ -69,12 +69,20 @@ const typeClass = computed(() => (props.type === "on" ? "is-on" : "is-off"));
   animation: glow 1600ms ease-in-out infinite;
 }
 @keyframes glow {
-  0% { box-shadow: 0 0 0 1px #48a055, 0 0 6px rgba(72,160,85,0.35); }
-  50% { box-shadow: 0 0 0 1px #48a055, 0 0 10px rgba(72,160,85,0.6); }
-  100% { box-shadow: 0 0 0 1px #48a055, 0 0 6px rgba(72,160,85,0.35); }
+  0% {
+    box-shadow: 0 0 0 1px #48a055, 0 0 6px rgba(72, 160, 85, 0.35);
+  }
+  50% {
+    box-shadow: 0 0 0 1px #48a055, 0 0 10px rgba(72, 160, 85, 0.6);
+  }
+  100% {
+    box-shadow: 0 0 0 1px #48a055, 0 0 6px rgba(72, 160, 85, 0.35);
+  }
 }
 /* gentle fade when OFF */
-.chip.success.is-off { filter: saturate(0.9); }
+.chip.success.is-off {
+  filter: saturate(0.9);
+}
 /* simple ripple */
 .chip::after {
   content: "";
@@ -85,15 +93,23 @@ const typeClass = computed(() => (props.type === "on" ? "is-on" : "is-off"));
   height: 0;
   border-radius: 50%;
   transform: translate(-50%, -50%);
-  background: rgba(255,255,255,0.08);
+  background: rgba(255, 255, 255, 0.08);
   pointer-events: none;
 }
 .chip:active::after {
   animation: ripple 420ms ease-out;
 }
 @keyframes ripple {
-  0% { width: 0; height: 0; opacity: 0.35; }
-  100% { width: 240%; height: 240%; opacity: 0; }
+  0% {
+    width: 0;
+    height: 0;
+    opacity: 0.35;
+  }
+  100% {
+    width: 240%;
+    height: 240%;
+    opacity: 0;
+  }
 }
 .icon {
   font-size: 14px;

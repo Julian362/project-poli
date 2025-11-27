@@ -128,7 +128,9 @@ const resolvers = {
       return Array.isArray(list) ? list : [];
     },
     events: async (_: any, { sessionId }: { sessionId: string }) => {
-      const url = `${CHATBOT_BASE}/api/chat/events?sessionId=${encodeURIComponent(sessionId)}`;
+      const url = `${CHATBOT_BASE}/api/chat/events?sessionId=${encodeURIComponent(
+        sessionId
+      )}`;
       const res = await fetch(url);
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const raw = await res.json();
@@ -140,7 +142,7 @@ const resolvers = {
         actionType: e.actionType || "unknown",
         summary: e.summary || "",
         ts: e.ts,
-        source: e.source || "unknown"
+        source: e.source || "unknown",
       }));
     },
   },

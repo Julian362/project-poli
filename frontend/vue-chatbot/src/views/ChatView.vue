@@ -384,7 +384,8 @@ async function toggleRoom(room) {
   padding: 18px 22px 26px;
   max-width: 1280px;
   margin: 0 auto;
-  box-shadow: 0 10px 28px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.03);
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.35),
+    inset 0 1px 0 rgba(255, 255, 255, 0.03);
 }
 .bothello {
   font-size: 15px;
@@ -404,7 +405,7 @@ async function toggleRoom(room) {
   padding: 8px 10px;
   color: #e8edf2;
   font-size: 14px;
-  box-shadow: inset 0 1px 0 rgba(255,255,255,0.04);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
 }
 .button {
   background: #2f5e35;
@@ -414,7 +415,7 @@ async function toggleRoom(room) {
   border-radius: 8px;
   cursor: pointer;
   font-weight: 600;
-  box-shadow: 0 6px 16px rgba(47,94,53,0.35);
+  box-shadow: 0 6px 16px rgba(47, 94, 53, 0.35);
 }
 .button:disabled {
   opacity: 0.4;

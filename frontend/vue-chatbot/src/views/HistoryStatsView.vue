@@ -128,35 +128,69 @@ onMounted(async () => {
   computeRoomsSummary();
 });
 
-
-function formatCommand(code){
+function formatCommand(code) {
   const map = {
-    'H': '💡 Habitación encendida',
-    'h': '🕯️ Habitación apagada',
-    'C': '💡 Cocina encendida',
-    'c': '🕯️ Cocina apagada',
-    'S': '💡 Sala encendida',
-    's': '🕯️ Sala apagada',
-    'X': 'Otro'
+    H: "💡 Habitación encendida",
+    h: "🕯️ Habitación apagada",
+    C: "💡 Cocina encendida",
+    c: "🕯️ Cocina apagada",
+    S: "💡 Sala encendida",
+    s: "🕯️ Sala apagada",
+    X: "Otro",
   };
   return map[code] || code;
 }
 
-function computeRoomsSummary(){
-  const byCode24 = Object.fromEntries(topCommands.value.map(c=>[c.command, c.count]));
-  const byCodeTotal = Object.fromEntries(counts.value.map(c=>[c.command, c.count]));
+function computeRoomsSummary() {
+  const byCode24 = Object.fromEntries(
+    topCommands.value.map((c) => [c.command, c.count])
+  );
+  const byCodeTotal = Object.fromEntries(
+    counts.value.map((c) => [c.command, c.count])
+  );
   const defs = [
-    { key: 'habitacion', name: 'Habitación', onCode24: 'H', offCode24: 'h', onCodeTot: 'H', offCodeTot: 'h' },
-    { key: 'cocina', name: 'Cocina', onCode24: 'C', offCode24: 'c', onCodeTot: 'C', offCodeTot: 'c' },
-    { key: 'sala', name: 'Sala', onCode24: 'S', offCode24: 's', onCodeTot: 'S', offCodeTot: 's' },
+    {
+      key: "habitacion",
+      name: "Habitación",
+      onCode24: "H",
+      offCode24: "h",
+      onCodeTot: "H",
+      offCodeTot: "h",
+    },
+    {
+      key: "cocina",
+      name: "Cocina",
+      onCode24: "C",
+      offCode24: "c",
+      onCodeTot: "C",
+      offCodeTot: "c",
+    },
+    {
+      key: "sala",
+      name: "Sala",
+      onCode24: "S",
+      offCode24: "s",
+      onCodeTot: "S",
+      offCodeTot: "s",
+    },
   ];
-  roomsSummary.value = defs.map(d=>{
-    const on24h = byCode24[d.onCode24]||0;
-    const off24h = byCode24[d.offCode24]||0;
-    const onTotal = byCodeTotal[d.onCodeTot]||0;
-    const offTotal = byCodeTotal[d.offCodeTot]||0;
-    const top24h = topCommands.value.filter(c=> c.command===d.onCode24 || c.command===d.offCode24);
-    return { key: d.key, name: d.name, on24h, off24h, onTotal, offTotal, top24h };
+  roomsSummary.value = defs.map((d) => {
+    const on24h = byCode24[d.onCode24] || 0;
+    const off24h = byCode24[d.offCode24] || 0;
+    const onTotal = byCodeTotal[d.onCodeTot] || 0;
+    const offTotal = byCodeTotal[d.offCodeTot] || 0;
+    const top24h = topCommands.value.filter(
+      (c) => c.command === d.onCode24 || c.command === d.offCode24
+    );
+    return {
+      key: d.key,
+      name: d.name,
+      on24h,
+      off24h,
+      onTotal,
+      offTotal,
+      top24h,
+    };
   });
 }
 </script>
@@ -213,7 +247,8 @@ function computeRoomsSummary(){
   border-radius: 12px;
   padding: 12px 14px;
   background: #11161c;
-  box-shadow: 0 6px 24px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.03);
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.35),
+    inset 0 1px 0 rgba(255, 255, 255, 0.03);
 }
 .msg {
   display: grid;
@@ -221,7 +256,7 @@ function computeRoomsSummary(){
   gap: 8px;
   padding: 8px 0;
   font-size: 13px;
-  border-bottom: 1px solid rgba(255,255,255,0.04);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
 }
 .msg:last-child {
   border-bottom: none;
@@ -246,20 +281,50 @@ function computeRoomsSummary(){
   background: #11161c;
   border-radius: 12px;
   padding: 16px 18px;
-  box-shadow: 0 10px 28px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.03);
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.35),
+    inset 0 1px 0 rgba(255, 255, 255, 0.03);
 }
-.stat-card.full { padding: 16px 18px; }
+.stat-card.full {
+  padding: 16px 18px;
+}
 .stat-card h3 {
   margin: 0 0 10px;
   font-size: 15px;
 }
-.rooms { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
-.room { background: #0e1318; border-radius: 12px; padding: 12px; box-shadow: inset 0 1px 0 rgba(255,255,255,0.03); }
-.room-head { display:flex; justify-content: space-between; align-items:center; margin-bottom: 6px; }
-.room-name { font-weight: 600; }
-.counts { display:flex; flex-direction: column; gap: 6px; }
-.row { display:grid; grid-template-columns: 140px 1fr; align-items:center; gap:12px; }
-.top-badges { margin-top: 8px; }
+.rooms {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+}
+.room {
+  background: #0e1318;
+  border-radius: 12px;
+  padding: 12px;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.03);
+}
+.room-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+}
+.room-name {
+  font-weight: 600;
+}
+.counts {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.row {
+  display: grid;
+  grid-template-columns: 140px 1fr;
+  align-items: center;
+  gap: 12px;
+}
+.top-badges {
+  margin-top: 8px;
+}
 .badge-list {
   list-style: none;
   margin: 0;
@@ -276,7 +341,7 @@ function computeRoomsSummary(){
   display: flex;
   gap: 6px;
   align-items: center;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
 }
 .badge .count {
   background: #1f252b;
@@ -285,7 +350,11 @@ function computeRoomsSummary(){
   font-size: 11px;
 }
 @media (max-width: 1000px) {
-  .content { gap: 20px; }
-  .rooms { grid-template-columns: 1fr; }
+  .content {
+    gap: 20px;
+  }
+  .rooms {
+    grid-template-columns: 1fr;
+  }
 }
 </style>
