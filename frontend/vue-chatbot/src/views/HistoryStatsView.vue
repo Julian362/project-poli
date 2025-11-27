@@ -26,19 +26,7 @@
       </div>
     </header>
     <div class="content">
-      <section class="history">
-        <h2 class="sect-title">Mensajes sesión actual</h2>
-        <div class="list" ref="listWrap">
-          <div v-for="m in allMessages" :key="m.id" class="msg" :class="m.role">
-            <span class="time" :title="fmtTime(m.ts)">{{
-              shortTime(m.ts)
-            }}</span>
-            <span class="role">{{ labelRole(m.role) }}</span>
-            <span class="text">{{ m.text }}</span>
-          </div>
-        </div>
-      </section>
-      <section class="stats">
+      <section class="stats sticky">
         <div class="stat-card full">
           <h3>Resumen por habitación (24h / total)</h3>
           <div class="rooms">
@@ -66,6 +54,18 @@
                 </ul>
               </div>
             </div>
+          </div>
+        </div>
+      </section>
+      <section class="history">
+        <h2 class="sect-title">Mensajes sesión actual</h2>
+        <div class="list" ref="listWrap">
+          <div v-for="m in allMessages" :key="m.id" class="msg" :class="m.role">
+            <span class="time" :title="fmtTime(m.ts)">{{
+              shortTime(m.ts)
+            }}</span>
+            <span class="role">{{ labelRole(m.role) }}</span>
+            <span class="text">{{ m.text }}</span>
           </div>
         </div>
       </section>
@@ -196,9 +196,19 @@ function computeRoomsSummary() {
 </script>
 <style scoped>
 .hist-layout {
+  box-sizing: border-box;
   padding: 16px 20px 32px;
   max-width: 1400px;
   margin: 0 auto;
+  min-height: 100svh;
+  overflow: auto;
+  display: flex;
+  flex-direction: column;
+}
+@supports (height: 100dvh) {
+  .hist-layout {
+    min-height: 100dvh;
+  }
 }
 .hist-header {
   display: flex;
@@ -227,6 +237,8 @@ function computeRoomsSummary() {
   display: flex;
   flex-direction: column;
   gap: 24px;
+  flex: 1 1 auto;
+  min-height: 0;
 }
 .history {
   flex: 1;
@@ -235,6 +247,13 @@ function computeRoomsSummary() {
 .stats {
   display: block;
 }
+.stats.sticky {
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  padding-top: 6px;
+  background: linear-gradient(#0a1016 0%, rgba(10,16,22,0.92) 60%, rgba(10,16,22,0.85) 100%);
+}
 .sect-title {
   font-size: 14px;
   margin: 0 0 8px;
@@ -242,10 +261,12 @@ function computeRoomsSummary() {
   opacity: 0.8;
 }
 .list {
-  max-height: 680px;
+  flex: 1 1 auto;
+  min-height: 0;
   overflow-y: auto;
   border-radius: 12px;
   padding: 12px 14px;
+  padding-bottom: calc(20px + env(safe-area-inset-bottom, 0px));
   background: #11161c;
   box-shadow: 0 6px 24px rgba(0, 0, 0, 0.35),
     inset 0 1px 0 rgba(255, 255, 255, 0.03);

@@ -1,5 +1,12 @@
 <template>
-  <div class="chip" :class="[status, typeClass]" @click="$emit('click')">
+  <div
+    class="chip"
+    :class="[status, typeClass]"
+    @click="$emit('click')"
+    :title="tooltip"
+    role="button"
+    :aria-label="ariaLabel"
+  >
     <span class="icon" v-if="status === 'pending'">⏳</span>
     <span class="icon" v-else-if="status === 'fail'">⚠️</span>
     <span class="icon" v-else>{{ icon }}</span>
@@ -24,6 +31,18 @@ const stateWord = computed(() =>
 );
 // add class to differentiate on/off for background gradients
 const typeClass = computed(() => (props.type === "on" ? "is-on" : "is-off"));
+const tooltip = computed(
+  () =>
+    `Click para ${
+      props.type === "on" ? "apagar" : "prender"
+    } ${props.label?.toLowerCase()}`
+);
+const ariaLabel = computed(
+  () =>
+    `${props.label}: ${stateWord.value}. Click para ${
+      props.type === "on" ? "apagar" : "prender"
+    }`
+);
 </script>
 
 <style scoped>
@@ -60,6 +79,7 @@ const typeClass = computed(() => (props.type === "on" ? "is-on" : "is-off"));
 }
 .chip:hover {
   transform: translateY(-1px);
+  filter: brightness(1.03);
 }
 .chip:active {
   transform: translateY(0);

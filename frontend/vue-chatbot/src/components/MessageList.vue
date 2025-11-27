@@ -1,5 +1,5 @@
 <template>
-  <div ref="wrap" class="messages">
+  <div ref="wrap" class="messages message-list">
     <template v-for="(block, bi) in blocks" :key="bi">
       <DayDivider v-if="block.dayDivider" :label="block.dayDivider" />
       <div v-else class="block" :class="block.role">
@@ -127,10 +127,11 @@ onMounted(() => scrollToBottom());
 <style scoped>
 .messages {
   overflow-y: auto;
-  max-height: 420px;
   padding: 4px 8px 16px;
   scrollbar-width: none;
   scroll-behavior: smooth;
+  flex: 1 1 auto;
+  min-height: 0;
 }
 .messages::-webkit-scrollbar {
   display: none;

@@ -3,7 +3,7 @@
     <div class="container">
       <div class="top-header">
         <div class="left">
-          <h1 class="app-title">ChatBot IoT</h1>
+          <!-- Title removed to reduce vertical space; nav acts as header -->
           <div class="status-group">
             <ActionStateChip
               :label="'Habitación'"
@@ -25,32 +25,18 @@
             />
           </div>
         </div>
-        <div class="top-commands" v-if="topCommands.length">
-          <h2 class="mini-title">Top hoy</h2>
-          <ul class="top-list">
-            <li v-for="c in topCommands" :key="c.command" class="top-item">
-              <span class="cmd">{{ formatCommand(c.command) }}</span>
-              <span class="count">{{ c.count }}</span>
-            </li>
-          </ul>
-        </div>
       </div>
 
       <div class="card">
-        <div class="bothello">
-          Hola 👋 Escribe "prende sala" o selecciona un chip de ejemplo.
+        <div class="card-header">
+          <div class="bothello">
+            Hola 👋 Escribe "prende sala" o selecciona un chip de ejemplo.
+          </div>
+          <QuickChips @send="onQuickSend" />
         </div>
-        <QuickChips @send="onQuickSend" />
-        <div class="chips-row" v-if="pending.length">
-          <ActionStateChip
-            v-for="c in pending"
-            :key="c.id"
-            :label="c.label"
-            :status="c.status"
-            :type="c.type"
-          />
+        <div class="chat-body">
+          <MessageList :messages="visibleMessages" />
         </div>
-        <MessageList :messages="visibleMessages" />
         <div class="footer">
           <input
             class="input"
@@ -70,6 +56,7 @@
           Sesión: {{ sessionId }} · {{ allMessages.length }} msgs
         </div>
       </div>
+      <Toasts :toasts="toasts" />
     </div>
   </div>
 </template>
@@ -86,6 +73,7 @@ import {
 import MessageList from "../components/MessageList.vue";
 import QuickChips from "../components/QuickChips.vue";
 import ActionStateChip from "../components/ActionStateChip.vue";
+import Toasts from "../components/Toasts.vue";
 
 const sessionId = getOrCreateSession();
 const allMessages = ref([]);
@@ -100,6 +88,7 @@ const prevState = reactive({ habitacion: "off", cocina: "off", sala: "off" });
 const pending = ref([]);
 const topCommands = ref([]);
 const togglingRooms = new Set();
+const toasts = ref([]);
 
 onMounted(async () => {
   try {
@@ -306,17 +295,50 @@ async function toggleRoom(room) {
     togglingRooms.delete(room);
     refreshLights();
     refreshTop();
+    // toast confirmation
+    const nowOn = state[room] === "on";
+    const roomWordCap =
+      room === "habitacion"
+        ? "Habitación"
+        : room.charAt(0).toUpperCase() + room.slice(1);
+    pushToast(`${roomWordCap} ${nowOn ? "encendida" : "apagada"}`, "success");
   }
+}
+
+function pushToast(text, type = "success") {
+  const id = Date.now().toString() + Math.random().toString(36).slice(2, 5);
+  toasts.value.push({ id, text, type });
+  setTimeout(() => {
+    toasts.value = toasts.value.filter((t) => t.id !== id);
+  }, 2200);
 }
 </script>
 
 <style scoped>
 .layout {
   display: flex;
+  /* Use small/dynamic viewport units to avoid OS bars shrinking the space */
+  min-height: 100svh;
+  max-height: 100svh;
+  overflow: hidden;
 }
 .container {
   flex: 1;
-  padding: 8px 16px;
+  padding: 8px 24px;
+  display: flex;
+  flex-direction: column;
+  max-height: 100svh;
+}
+
+/* Prefer dynamic viewport on supporting browsers (Chrome/Edge) */
+@supports (height: 100dvh) {
+  .layout {
+    min-height: 100dvh;
+    max-height: 100dvh;
+  }
+  .container {
+    max-height: 100dvh;
+  }
 }
 .top-header {
   display: flex;
@@ -326,66 +348,41 @@ async function toggleRoom(room) {
   padding: 16px 8px 8px;
   flex-wrap: wrap;
 }
-.app-title {
-  font-size: 22px;
-  margin: 0 0 6px;
-}
+/* app title removed */
 .status-group {
   display: flex;
   gap: 6px;
   flex-wrap: wrap;
 }
-.mini-title {
-  font-size: 13px;
-  font-weight: 600;
-  margin: 0 0 4px;
-  letter-spacing: 0.5px;
-  color: #b8c1cc;
-}
-.top-commands {
-  display: flex;
-  flex-direction: column;
-  min-width: 180px;
-}
-.top-list {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: flex;
-  gap: 6px;
-  flex-wrap: wrap;
-}
-.top-item {
-  background: #1e2227;
-  padding: 4px 8px;
-  border-radius: 12px;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 12px;
-}
-.cmd {
-  color: #d0d5dc;
-}
-.count {
-  background: #2a3036;
-  padding: 2px 6px;
-  border-radius: 10px;
-  font-size: 11px;
-}
+/* removed Top hoy section styles */
 .chips-row {
   display: flex;
   flex-wrap: wrap;
   margin: 6px 0 4px;
 }
+/* ensure header and body layout inside card don't cause overflow */
+.card-header {
+  display: flex;
+  flex-direction: column;
+}
+.chat-body {
+  display: flex;
+  min-height: 0;
+  flex: 1 1 auto;
+}
 .card {
   background: #11161c;
   border-radius: 12px;
-  padding: 18px 22px 26px;
-  max-width: 1280px;
-  margin: 0 auto;
+  padding: 18px 22px 32px;
+  padding-bottom: calc(32px + env(safe-area-inset-bottom, 0px));
+  width: 100%;
+  max-width: none;
+  margin: 0;
   box-shadow: 0 10px 28px rgba(0, 0, 0, 0.35),
     inset 0 1px 0 rgba(255, 255, 255, 0.03);
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
 }
 .bothello {
   font-size: 15px;
@@ -396,6 +393,13 @@ async function toggleRoom(room) {
   display: flex;
   gap: 8px;
   margin-top: 10px;
+  position: sticky;
+  bottom: 0;
+  background: #11161c;
+  padding-top: 10px;
+  padding-bottom: 8px;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  margin-bottom: calc(8px + env(safe-area-inset-bottom, 0px));
 }
 .input {
   flex: 1;
@@ -406,6 +410,12 @@ async function toggleRoom(room) {
   color: #e8edf2;
   font-size: 14px;
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+}
+/* ensure MessageList area grows and scrolls internally */
+:deep(.message-list) {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: auto;
 }
 .button {
   background: #2f5e35;

@@ -19,17 +19,40 @@
 </script>
 
 <style scoped>
+:global(html),
+:global(body),
+:global(#app),
 .app-shell {
+  height: 100svh;
+  max-height: 100svh;
+}
+@supports (height: 100dvh) {
+  :global(html),
+  :global(body),
+  :global(#app),
+  .app-shell {
+    height: 100dvh;
+    max-height: 100dvh;
+  }
+}
+:global(html),
+:global(body) {
+  overflow: hidden;
+}
+.app-shell {
+  box-sizing: border-box;
   max-width: 1400px;
   margin: 0 auto;
-  padding: 0 10px 30px;
+  padding: 0 16px 12px;
+  display: flex;
+  flex-direction: column;
 }
 .nav {
   display: flex;
-  gap: 14px;
-  padding: 14px 4px 10px;
+  gap: 10px;
+  padding: 10px 4px 8px;
   border-bottom: 1px solid #2a3036;
-  margin-bottom: 12px;
+  margin-bottom: 6px;
 }
 .link {
   text-decoration: none;
@@ -49,7 +72,11 @@
   color: #fff;
 }
 .view-wrap {
-  min-height: 600px;
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  padding-bottom: env(safe-area-inset-bottom, 0px);
 }
 @media (max-width: 640px) {
   .nav {
