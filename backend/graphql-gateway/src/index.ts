@@ -76,8 +76,14 @@ const resolvers = {
       const url = `${ANALYTICS_BASE}/api/analytics/commands/counts`;
       const res = await fetch(url);
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      const data = await res.json();
-      return data;
+      const raw: unknown = await res.json();
+      const data: Record<string, number> = (raw && typeof raw === 'object') ? raw as Record<string, number> : {};
+      interface CountItem { command: string; count: number; }
+      const list: CountItem[] = Object.entries(data).map(([command, count]) => ({
+        command,
+        count: Number(count)
+      }));
+      return list.filter((c) => c.count > 0);
     },
     topSince: async (_: any, { since }: { since: string }) => {
       const url = `${ANALYTICS_BASE}/api/analytics/commands/top?since=${encodeURIComponent(
@@ -85,8 +91,18 @@ const resolvers = {
       )}`;
       const res = await fetch(url);
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      const data = await res.json();
-      return data;
+      const raw: unknown = await res.json();
+      console.log('[topSince] raw response:', raw);
+      const obj = (raw && typeof raw === 'object') ? raw as any : {};
+      const countsObj: Record<string, number> = (obj.counts && typeof obj.counts === 'object') ? obj.counts : {};
+      interface TopItem { command: string; count: number; }
+      const list: TopItem[] = Object.entries(countsObj).map(([command, count]) => ({
+        command,
+        count: Number(count)
+      }));
+      list.sort((a, b) => b.count - a.count);
+      console.log('[topSince] list built:', list);
+      return Array.isArray(list) ? list : [];
     },
   },
   Mutation: {
