@@ -7,18 +7,21 @@
           <div class="status-group">
             <ActionStateChip
               :label="'Habitación'"
-              :status="'success'"
+              :status="togglingRooms.has('habitacion') ? 'pending' : 'success'"
               :type="state.habitacion === 'on' ? 'on' : 'off'"
+              @click="toggleRoom('habitacion')"
             />
             <ActionStateChip
               :label="'Cocina'"
-              :status="'success'"
+              :status="togglingRooms.has('cocina') ? 'pending' : 'success'"
               :type="state.cocina === 'on' ? 'on' : 'off'"
+              @click="toggleRoom('cocina')"
             />
             <ActionStateChip
               :label="'Sala'"
-              :status="'success'"
+              :status="togglingRooms.has('sala') ? 'pending' : 'success'"
               :type="state.sala === 'on' ? 'on' : 'off'"
+              @click="toggleRoom('sala')"
             />
           </div>
         </div>
@@ -26,7 +29,7 @@
           <h2 class="mini-title">Top hoy</h2>
           <ul class="top-list">
             <li v-for="c in topCommands" :key="c.command" class="top-item">
-              <span class="cmd">{{ c.command }}</span>
+              <span class="cmd">{{ formatCommand(c.command) }}</span>
               <span class="count">{{ c.count }}</span>
             </li>
           </ul>
@@ -96,6 +99,7 @@ const state = reactive({ habitacion: "off", cocina: "off", sala: "off" });
 const prevState = reactive({ habitacion: "off", cocina: "off", sala: "off" });
 const pending = ref([]);
 const topCommands = ref([]);
+const togglingRooms = new Set();
 
 onMounted(async () => {
   try {
@@ -214,6 +218,17 @@ function onQuickSend(txt) {
   draft.value = txt;
   send();
 }
+function formatCommand(code) {
+  const map = {
+    H: "💡 Habitación encendida",
+    h: "🕯️ Habitación apagada",
+    C: "💡 Cocina encendida",
+    c: "🕯️ Cocina apagada",
+    S: "💡 Sala encendida",
+    s: "🕯️ Sala apagada",
+  };
+  return map[code] || code;
+}
 async function send() {
   const text = draft.value.trim();
   if (!text) return;
@@ -251,6 +266,48 @@ async function send() {
     refreshTop();
   }
 }
+
+async function toggleRoom(room) {
+  if (togglingRooms.has(room)) return; // avoid overlapping
+  // Compose a natural command based on current state
+  const isOn = state[room] === "on";
+  const roomWord = room === "habitacion" ? "habitación" : room;
+  const text = (isOn ? "apaga " : "prende ") + roomWord;
+  loading.value = true;
+  togglingRooms.add(room);
+  const userMsg = {
+    id: Date.now().toString(),
+    sessionId,
+    role: "user",
+    text,
+    ts: new Date().toISOString(),
+  };
+  allMessages.value = [...allMessages.value, userMsg];
+  snapshotState();
+  const chips = detectActions(text);
+  if (chips.length) pending.value.push(...chips);
+  try {
+    const botMsg = await ask(sessionId, text);
+    allMessages.value = [...allMessages.value, botMsg];
+  } catch (e) {
+    allMessages.value = [
+      ...allMessages.value,
+      {
+        id: "err-" + Date.now(),
+        sessionId,
+        role: "assistant",
+        text: "Ups, hubo un problema. Intenta de nuevo.",
+        ts: new Date().toISOString(),
+      },
+    ];
+    console.error(e);
+  } finally {
+    loading.value = false;
+    togglingRooms.delete(room);
+    refreshLights();
+    refreshTop();
+  }
+}
 </script>
 
 <style scoped>
@@ -259,17 +316,18 @@ async function send() {
 }
 .container {
   flex: 1;
+  padding: 8px 16px;
 }
 .top-header {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  gap: 24px;
-  padding: 10px 4px 4px;
+  gap: 32px;
+  padding: 16px 8px 8px;
   flex-wrap: wrap;
 }
 .app-title {
-  font-size: 20px;
+  font-size: 22px;
   margin: 0 0 6px;
 }
 .status-group {
@@ -321,15 +379,15 @@ async function send() {
   margin: 6px 0 4px;
 }
 .card {
-  background: #1c2025;
-  border: 1px solid #2a3036;
+  background: #11161c;
   border-radius: 12px;
-  padding: 12px 14px 18px;
-  max-width: 820px;
+  padding: 18px 22px 26px;
+  max-width: 1280px;
   margin: 0 auto;
+  box-shadow: 0 10px 28px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.03);
 }
 .bothello {
-  font-size: 13px;
+  font-size: 15px;
   opacity: 0.85;
   margin-bottom: 8px;
 }
@@ -340,12 +398,13 @@ async function send() {
 }
 .input {
   flex: 1;
-  background: #272d34;
-  border: 1px solid #343b44;
+  background: #1a2027;
+  border: 1px solid #2a3036;
   border-radius: 8px;
   padding: 8px 10px;
   color: #e8edf2;
   font-size: 14px;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.04);
 }
 .button {
   background: #2f5e35;
@@ -355,6 +414,7 @@ async function send() {
   border-radius: 8px;
   cursor: pointer;
   font-weight: 600;
+  box-shadow: 0 6px 16px rgba(47,94,53,0.35);
 }
 .button:disabled {
   opacity: 0.4;

@@ -20,12 +20,23 @@ const typeDefs = `#graphql
     message: ChatMessage!
   }
 
+  type ActionEvent {
+    id: ID
+    sessionId: String!
+    rooms: [String!]!
+    actionType: String!
+    summary: String!
+    ts: String!
+    source: String!
+  }
+
   type Query {
     health: String!
     history(sessionId: String!): [ChatMessage!]!
     lightsState: LightsState!
     commandCounts: [CommandCount!]!
     topSince(since: String!): [TopCommand!]!
+    events(sessionId: String!): [ActionEvent!]!
   }
 
   type Mutation {
@@ -115,6 +126,22 @@ const resolvers = {
       list.sort((a, b) => b.count - a.count);
       console.log("[topSince] list built:", list);
       return Array.isArray(list) ? list : [];
+    },
+    events: async (_: any, { sessionId }: { sessionId: string }) => {
+      const url = `${CHATBOT_BASE}/api/chat/events?sessionId=${encodeURIComponent(sessionId)}`;
+      const res = await fetch(url);
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const raw = await res.json();
+      if (!Array.isArray(raw)) return [];
+      return raw.map((e: any) => ({
+        id: e.id,
+        sessionId: e.sessionId,
+        rooms: Array.isArray(e.rooms) ? e.rooms : [],
+        actionType: e.actionType || "unknown",
+        summary: e.summary || "",
+        ts: e.ts,
+        source: e.source || "unknown"
+      }));
     },
   },
   Mutation: {

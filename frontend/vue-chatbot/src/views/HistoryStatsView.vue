@@ -38,26 +38,37 @@
           </div>
         </div>
       </section>
-      <aside class="stats">
-        <div class="stat-card">
-          <h3>Top comandos 24h</h3>
-          <ul class="badge-list">
-            <li v-for="c in topCommands" :key="c.command" class="badge">
-              <span class="cmd">{{ c.command }}</span>
-              <span class="count">{{ c.count }}</span>
-            </li>
-          </ul>
+      <section class="stats">
+        <div class="stat-card full">
+          <h3>Resumen por habitación (24h / total)</h3>
+          <div class="rooms">
+            <div class="room" v-for="r in roomsSummary" :key="r.key">
+              <div class="room-head">
+                <span class="room-name">{{ r.name }}</span>
+              </div>
+              <div class="counts">
+                <div class="row">
+                  <span class="label">💡 Encendida</span>
+                  <span class="value">{{ r.on24h }} / {{ r.onTotal }}</span>
+                </div>
+                <div class="row">
+                  <span class="label">🕯️ Apagada</span>
+                  <span class="value">{{ r.off24h }} / {{ r.offTotal }}</span>
+                </div>
+              </div>
+              <div class="top-badges" v-if="r.top24h.length">
+                <span class="mini-title">Top hoy</span>
+                <ul class="badge-list">
+                  <li v-for="c in r.top24h" :key="c.command" class="badge">
+                    <span class="cmd">{{ formatCommand(c.command) }}</span>
+                    <span class="count">{{ c.count }}</span>
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
         </div>
-        <div class="stat-card">
-          <h3>Conteos totales</h3>
-          <ul class="badge-list">
-            <li v-for="c in counts" :key="c.command" class="badge">
-              <span class="cmd">{{ c.command }}</span>
-              <span class="count">{{ c.count }}</span>
-            </li>
-          </ul>
-        </div>
-      </aside>
+      </section>
     </div>
   </div>
 </template>
@@ -70,6 +81,7 @@ const sessionId = getSession();
 const allMessages = ref([]);
 const topCommands = ref([]);
 const counts = ref([]);
+const roomsSummary = ref([]);
 const state = reactive({ habitacion: "off", cocina: "off", sala: "off" });
 
 function getSession() {
@@ -113,12 +125,45 @@ onMounted(async () => {
   } catch (e) {
     console.error(e);
   }
+  computeRoomsSummary();
 });
+
+
+function formatCommand(code){
+  const map = {
+    'H': '💡 Habitación encendida',
+    'h': '🕯️ Habitación apagada',
+    'C': '💡 Cocina encendida',
+    'c': '🕯️ Cocina apagada',
+    'S': '💡 Sala encendida',
+    's': '🕯️ Sala apagada',
+    'X': 'Otro'
+  };
+  return map[code] || code;
+}
+
+function computeRoomsSummary(){
+  const byCode24 = Object.fromEntries(topCommands.value.map(c=>[c.command, c.count]));
+  const byCodeTotal = Object.fromEntries(counts.value.map(c=>[c.command, c.count]));
+  const defs = [
+    { key: 'habitacion', name: 'Habitación', onCode24: 'H', offCode24: 'h', onCodeTot: 'H', offCodeTot: 'h' },
+    { key: 'cocina', name: 'Cocina', onCode24: 'C', offCode24: 'c', onCodeTot: 'C', offCodeTot: 'c' },
+    { key: 'sala', name: 'Sala', onCode24: 'S', offCode24: 's', onCodeTot: 'S', offCodeTot: 's' },
+  ];
+  roomsSummary.value = defs.map(d=>{
+    const on24h = byCode24[d.onCode24]||0;
+    const off24h = byCode24[d.offCode24]||0;
+    const onTotal = byCodeTotal[d.onCodeTot]||0;
+    const offTotal = byCodeTotal[d.offCodeTot]||0;
+    const top24h = topCommands.value.filter(c=> c.command===d.onCode24 || c.command===d.offCode24);
+    return { key: d.key, name: d.name, on24h, off24h, onTotal, offTotal, top24h };
+  });
+}
 </script>
 <style scoped>
 .hist-layout {
-  padding: 12px 10px 28px;
-  max-width: 1200px;
+  padding: 16px 20px 32px;
+  max-width: 1400px;
   margin: 0 auto;
 }
 .hist-header {
@@ -146,18 +191,15 @@ onMounted(async () => {
 }
 .content {
   display: flex;
+  flex-direction: column;
   gap: 24px;
-  align-items: stretch;
 }
 .history {
   flex: 1;
   min-width: 0;
 }
 .stats {
-  width: 320px;
-  display: flex;
-  flex-direction: column;
-  gap: 18px;
+  display: block;
 }
 .sect-title {
   font-size: 14px;
@@ -166,20 +208,20 @@ onMounted(async () => {
   opacity: 0.8;
 }
 .list {
-  max-height: 520px;
+  max-height: 680px;
   overflow-y: auto;
-  border: 1px solid #2b3036;
-  border-radius: 10px;
-  padding: 8px 10px;
-  background: #1c2025;
+  border-radius: 12px;
+  padding: 12px 14px;
+  background: #11161c;
+  box-shadow: 0 6px 24px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.03);
 }
 .msg {
   display: grid;
   grid-template-columns: 64px 60px 1fr;
   gap: 8px;
-  padding: 4px 0;
-  font-size: 12px;
-  border-bottom: 1px solid #242a2f;
+  padding: 8px 0;
+  font-size: 13px;
+  border-bottom: 1px solid rgba(255,255,255,0.04);
 }
 .msg:last-child {
   border-bottom: none;
@@ -201,15 +243,23 @@ onMounted(async () => {
   white-space: pre-wrap;
 }
 .stat-card {
-  background: #1c2025;
-  border: 1px solid #2b3036;
+  background: #11161c;
   border-radius: 12px;
-  padding: 12px 14px;
+  padding: 16px 18px;
+  box-shadow: 0 10px 28px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.03);
 }
+.stat-card.full { padding: 16px 18px; }
 .stat-card h3 {
   margin: 0 0 10px;
   font-size: 15px;
 }
+.rooms { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+.room { background: #0e1318; border-radius: 12px; padding: 12px; box-shadow: inset 0 1px 0 rgba(255,255,255,0.03); }
+.room-head { display:flex; justify-content: space-between; align-items:center; margin-bottom: 6px; }
+.room-name { font-weight: 600; }
+.counts { display:flex; flex-direction: column; gap: 6px; }
+.row { display:grid; grid-template-columns: 140px 1fr; align-items:center; gap:12px; }
+.top-badges { margin-top: 8px; }
 .badge-list {
   list-style: none;
   margin: 0;
@@ -219,31 +269,23 @@ onMounted(async () => {
   gap: 6px;
 }
 .badge {
-  background: #1e2227;
+  background: #141a20;
   padding: 6px 10px;
   border-radius: 14px;
   font-size: 12px;
   display: flex;
   gap: 6px;
   align-items: center;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.25);
 }
 .badge .count {
-  background: #2a3036;
+  background: #1f252b;
   padding: 2px 6px;
   border-radius: 10px;
   font-size: 11px;
 }
 @media (max-width: 1000px) {
-  .content {
-    flex-direction: column;
-  }
-  .stats {
-    width: 100%;
-    flex-direction: row;
-    flex-wrap: wrap;
-  }
-  .stat-card {
-    flex: 1 1 280px;
-  }
+  .content { gap: 20px; }
+  .rooms { grid-template-columns: 1fr; }
 }
 </style>

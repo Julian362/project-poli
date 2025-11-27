@@ -1,8 +1,10 @@
 package com.poli.chatbot.service;
 
 import com.poli.chatbot.model.ChatMessage;
+import com.poli.chatbot.model.ActionEvent;
 import com.poli.chatbot.model.ChatSession;
 import com.poli.chatbot.repo.ChatMessageRepository;
+import com.poli.chatbot.repo.ActionEventRepository;
 import com.poli.chatbot.repo.ChatSessionRepository;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -21,17 +23,20 @@ public class ChatService {
     private final RosApiClient rosClient;
     private final ObjectMapper mapper = new ObjectMapper();
     private final AnalyticsClient analyticsClient;
+    private final ActionEventRepository actionEventRepository;
 
     public ChatService(ChatMessageRepository messageRepository,
                        ChatSessionRepository sessionRepository,
                        DeepSeekClient deepSeekClient,
                        RosApiClient rosClient,
-                       AnalyticsClient analyticsClient) {
+                       AnalyticsClient analyticsClient,
+                       ActionEventRepository actionEventRepository) {
         this.messageRepository = messageRepository;
         this.sessionRepository = sessionRepository;
         this.deepSeekClient = deepSeekClient;
         this.rosClient = rosClient;
         this.analyticsClient = analyticsClient;
+        this.actionEventRepository = actionEventRepository;
     }
 
     public ChatSession getOrCreateSession(String sessionId) {
@@ -50,6 +55,10 @@ public class ChatService {
 
         String answer;
         boolean executedByAI = false;
+        String eventSummary = null; // concise summary
+        String eventSource = null; // ai|fallback
+        String rawActionsJson = null;
+        java.util.List<String> affectedRooms = new java.util.ArrayList<>();
         if (maybeAction) {
             String system = "Eres un asistente de hogar inteligente. \n" +
                     "Responde SIEMPRE en JSON estricto con este esquema: \n" +
@@ -66,6 +75,7 @@ public class ChatService {
                     answer = root.path("reply").asText();
                 }
                 if (root.has("actions") && root.path("actions").isArray()) {
+                    rawActionsJson = root.path("actions").toString();
                     boolean habOn=false,cocOn=false,salOn=false,habOff=false,cocOff=false,salOff=false;
                     for (JsonNode a : root.path("actions")) {
                         String room = a.path("room").asText("");
@@ -79,16 +89,20 @@ public class ChatService {
                             analyticsClient.recordState("coc", state);
                             analyticsClient.recordState("sal", state);
                             if (state.equals("on")) { habOn=true;cocOn=true;salOn=true; } else { habOff=true;cocOff=true;salOff=true; }
+                            affectedRooms.add("hab"); affectedRooms.add("coc"); affectedRooms.add("sal");
                         } else {
                             boolean ok = rosClient.toggle(room, state);
                             analyticsClient.recordState(room, state);
                             if (room.equals("hab")) { if (state.equals("on")) habOn=true; else habOff=true; }
                             if (room.equals("coc")) { if (state.equals("on")) cocOn=true; else cocOff=true; }
                             if (room.equals("sal")) { if (state.equals("on")) salOn=true; else salOff=true; }
+                            affectedRooms.add(room);
                         }
                     }
                     executedByAI = true;
                     String concise = buildSummaryLine(habOn,cocOn,salOn,habOff,cocOff,salOff);
+                    eventSummary = concise;
+                    eventSource = "ai";
                     if (!concise.isBlank()) {
                         answer = concise + (answer.isBlank() ? "" : " " + answer);
                     }
@@ -130,6 +144,11 @@ public class ChatService {
                 }
             }
             fallbackNote = buildSummaryLine(habOn,cocOn,salOn,habOff,cocOff,salOff);
+            eventSummary = fallbackNote;
+            eventSource = "fallback";
+            if (habOn||habOff) affectedRooms.add("hab");
+            if (cocOn||cocOff) affectedRooms.add("coc");
+            if (salOn||salOff) affectedRooms.add("sal");
             if (fallbackNote != null) {
                 if (answer.startsWith("[error]")) {
                     answer = fallbackNote;
@@ -141,6 +160,20 @@ public class ChatService {
         // Save assistant reply
         ChatMessage assistantMsg = ChatMessage.assistant(sessionId, answer);
         messageRepository.save(assistantMsg);
+        // Persist ActionEvent if we executed something
+        if (eventSummary != null && !eventSummary.isBlank() && !affectedRooms.isEmpty()) {
+            // Determine actionType
+            String actionType;
+            if (eventSummary.contains("encendida") || eventSummary.contains("encendidas")) {
+                if (eventSummary.contains("apagada") || eventSummary.contains("apagadas")) actionType = "mixed"; else actionType = "on";
+            } else if (eventSummary.contains("apagada") || eventSummary.contains("apagadas")) {
+                actionType = "off";
+            } else {
+                actionType = "unknown";
+            }
+            ActionEvent ev = new ActionEvent(sessionId, affectedRooms, actionType, eventSummary, Instant.now(), eventSource == null ? "unknown" : eventSource, rawActionsJson);
+            actionEventRepository.save(ev);
+        }
         // Update session state if needed
         session.setLastUpdated(Instant.now());
         sessionRepository.save(session);
