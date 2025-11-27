@@ -252,7 +252,11 @@ function computeRoomsSummary() {
   top: 0;
   z-index: 5;
   padding-top: 6px;
-  background: linear-gradient(#0a1016 0%, rgba(10,16,22,0.92) 60%, rgba(10,16,22,0.85) 100%);
+  background: linear-gradient(
+    #0a1016 0%,
+    rgba(10, 16, 22, 0.92) 60%,
+    rgba(10, 16, 22, 0.85) 100%
+  );
 }
 .sect-title {
   font-size: 14px;
