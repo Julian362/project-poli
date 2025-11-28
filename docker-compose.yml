@@ -1,4 +1,15 @@
 services:
+  frontend:
+    build:
+      context: ./frontend/vue-chatbot
+    image: project-poli/frontend:latest
+    depends_on:
+      - graphql-gateway
+    ports:
+      - "5173:80"
+    # If you need API base override, you could add:
+    # environment:
+    #   - VITE_API_BASE=http://localhost:8090
   micro-ros-agent:
     image: microros/micro-ros-agent:humble
     container_name: micro-ros-agent
