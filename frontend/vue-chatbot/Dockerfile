@@ -6,8 +6,10 @@ COPY package*.json yarn.lock* pnpm-lock.yaml* ./
 RUN npm install --no-audit --no-fund
 # Copy source
 COPY . .
-# Build static assets
-RUN npm run build
+# Build static assets (allow build-time env for Vite)
+ARG VITE_GRAPHQL_BASE
+ENV VITE_GRAPHQL_BASE=${VITE_GRAPHQL_BASE}
+RUN echo "Building with VITE_GRAPHQL_BASE=$VITE_GRAPHQL_BASE" && npm run build
 
 # Runtime stage
 FROM nginx:1.25-alpine

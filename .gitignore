@@ -46,6 +46,12 @@ Desktop.ini
 coverage/
 
 # ========================
+# Java / Spring (si se usa)
+# ========================
+target/
+*.class
+
+# ========================
 # Node / JavaScript (if later added)
 # ========================
 node_modules/

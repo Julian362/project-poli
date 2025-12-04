@@ -2,6 +2,8 @@ services:
   frontend:
     build:
       context: ./frontend/vue-chatbot
+      args:
+        - VITE_GRAPHQL_BASE=https://gateway-production-214e.up.railway.app/graphql
     image: project-poli/frontend:latest
     depends_on:
       - graphql-gateway

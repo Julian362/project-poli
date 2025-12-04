@@ -92,6 +92,11 @@ http://localhost:5173  # o el puerto asignado
 curl http://localhost:8090/graphql -H "Content-Type: application/json" -d '{"query":"{ health }"}'
 ```
 
+## Gestión de Secretos
+- Usa Variables de Railway para producción (`MONGO_URI`, `MONGO_DB`, `OPENROUTER_API_KEY`).
+- Mantén tus secretos locales en `.env` (no versionado). Consulta `.env.example` para las claves requeridas.
+- Si alguna clave quedó expuesta, rótala de inmediato y actualiza la variable en Railway.
+
 ## Despliegue (Estrategia Gratuita)
 - Analytics (Spring) → Render (Web Service Docker) con `MONGO_URI` y `MONGO_DB`.
 - Gateway GraphQL → Railway (Docker) con `ANALYTICS_BASE` apuntando a la URL Render.
@@ -102,14 +107,10 @@ La wiki técnica completa (arquitectura, esquema GraphQL, flujo E2E, colecciones
 
 ➡️ https://deepwiki.com/Julian362/project-poli
 
+Documento de despliegue resumido para Gamma/Deepwiki:
+- `docs/DevOps-Despliegue.md`
+
 Secciones destacadas:
-- Overview & Architecture
-- GraphQL API Gateway (Schema, Resolvers)
-- Backend Services (Chatbot, Analytics, ROS Control)
-- IoT & Device Control (micro-ROS, ESP32 Firmware)
-- Data Layer (MongoDB Schema, Persistence Flow)
-- End-to-End Command Flow
-- Environment Configuration & Deployment Guide
 
 Consulta esa wiki para diagramas, referencias de código y guías detalladas de pruebas.
 
